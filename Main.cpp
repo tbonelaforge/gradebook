@@ -11,12 +11,28 @@ using namespace std;
 void handleSetup(int &state, Gradebook &gradebook) {
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
-    cout << "Enter number of programming assignments: " << endl;
+
+    cout << "Enter number of programming assignments (Between 0-6): " << endl;
     cin >> numPrograms;
-    cout << "Enter number of tests: " << endl;
+    while (numPrograms<0&&numPrograms>6){
+      cout << "Error, incorrect value enetered." <<endl<<"Enter number of programming assignments (Between 0-6): " << endl;
+      cin >> numPrograms;
+    }
+
+    cout << "Enter number of tests (Between 0-4): " << endl;
     cin >> numTests;
+    while (numTests<0&&numTests>4){
+      cout << "Error, incorrect value enetered." <<endl<<"Enter number of tests (Between 0-4): " << endl;
+      cin >> numTests;
+    }
+
     cout << "Enter number of Final Exams: (0 or 1)" << endl;
     cin >> numFinals;
+    while (numFinals<0&&numFinals>1){
+      cout << "Error, incorrect value enetered." <<endl<< "Enter number of Final Exams: (0 or 1)" << endl;
+      cin >> numFinals;
+    }
+
     if (numFinals > 0) {
         cout << "Enter the relative percentages for programs, tests, and final exam. example: \n30 50 20" << endl;
         cin >> programsWeight >> testsWeight >> finalExamWeight;
@@ -97,9 +113,27 @@ void handleAddStudent(Gradebook &gradebook) {
     int studentId;
     cout << "Enter the new student's first and last name: " << endl;
     cin >> firstName;
+    while (firstName.length > 20){
+      cout<< "Error, too many charachters, please shorten to less than 20"<<endl;
+      cout << "Enter the new student's first name: " << endl;
+      cin >> firstName;
+    }
+
     cin >> lastName;
+    while (lastName.length > 20){
+      cout<< "Error, too many charachters, please shorten to less than 20"<<endl;
+      cout << "Enter the new student's last name: " << endl;
+      cin >> lastName;
+    }
+
     cout << "Enter the new student's ID number: " << endl;
     cin >> studentId;
+    while (studentId>9999&& studentId<1){
+      cout<< " Error please enter a value between 1-9999"<< endl;
+      cout << "Enter the new student's ID number: " << endl;
+      cin >> studentId;
+    }
+
     cout << "Adding " << firstName << " " << lastName << " (" << studentId << ") to the gradebook" << endl;
     try {
         Student * newStudent = gradebook.addStudent(studentId);
@@ -192,8 +226,3 @@ int main() {
     }
     exit(0);
 }
-
-
-
-
-
