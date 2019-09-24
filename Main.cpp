@@ -21,14 +21,14 @@ void handleSetup(int &state, Gradebook &gradebook) {
 
     cout << "Enter number of tests (Between 0-4): " << endl;
     cin >> numTests;
-    while (numTests<0&&numTests>4){
+    while (numTests<0 || numTests>4){
       cout << "Error, incorrect value entered." <<endl<<"Enter number of tests (Between 0-4): " << endl;
       cin >> numTests;
     }
 
     cout << "Enter number of Final Exams: (0 or 1)" << endl;
     cin >> numFinals;
-    while (numFinals<0&&numFinals>1){
+    while (numFinals<0 || numFinals>1){
       cout << "Error, incorrect value entered." <<endl<< "Enter number of Final Exams: (0 or 1)" << endl;
       cin >> numFinals;
     }
@@ -128,7 +128,7 @@ void handleAddStudent(Gradebook &gradebook) {
 
     cout << "Enter the new student's ID number: " << endl;
     cin >> studentId;
-    while (studentId>9999&& studentId<1){
+    while (studentId>9999 || studentId<1){
       cout<< " Error please enter a value between 1-9999"<< endl;
       cout << "Enter the new student's ID number: " << endl;
       cin >> studentId;
