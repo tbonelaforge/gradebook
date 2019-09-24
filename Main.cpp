@@ -113,14 +113,14 @@ void handleAddStudent(Gradebook &gradebook) {
     int studentId;
     cout << "Enter the new student's first and last name: " << endl;
     cin >> firstName;
-    while (firstName.length()) > 20){
+    while (firstName.length() > 20){
       cout<< "Error, too many characters, please shorten to less than 20"<<endl;
       cout << "Enter the new student's first name: " << endl;
       cin >> firstName;
     }
 
     cin >> lastName;
-    while (lastName.length()) > 20){
+    while (lastName.length() > 20){
       cout<< "Error, too many characters, please shorten to less than 20"<<endl;
       cout << "Enter the new student's last name: " << endl;
       cin >> lastName;
