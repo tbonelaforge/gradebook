@@ -81,6 +81,17 @@ Student * Gradebook::addStudent(int newId) {
     return newStudent;
 }
 
+Student * Gradebook::findStudentById(int id) {
+    Student * current = head;
+    while (current != NULL) {
+        if (current->getId() == id) {
+            return current;
+        }
+        current = current->next;
+    }
+}
+
+
 void Gradebook::printStudents(std::ostream& out) const {
     Student * current = head;
     while (current != NULL) {
