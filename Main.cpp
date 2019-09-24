@@ -36,9 +36,19 @@ void handleSetup(int &state, Gradebook &gradebook) {
     if (numFinals > 0) {
         cout << "Enter the relative percentages for programs, tests, and final exam. example: \n30 50 20" << endl;
         cin >> programsWeight >> testsWeight >> finalExamWeight;
+		while ((programsWeight + testsWeight + finalExamWeight) != 100) {
+			cout << "Error, must equal 100%" << endl;
+			cout << "Enter the relative percentages for programs, tests, and final exam. example: \n30 50 20" << endl;
+			cin >> programsWeight >> testsWeight >> finalExamWeight;
+		}
     } else {
         cout << "Enter the relative percentages for programs, and tests. example: \n40 60" << endl;
         cin >> programsWeight >> testsWeight;
+		while ((programsWeight + testsWeight) != 100) {
+			cout << "Error, must equal 100%" << endl;
+			cout << "Enter the relative percentages for programs, and tests. example: \n40 60" << endl;
+			cin >> programsWeight >> testsWeight;
+		}
     }
     gradebook.initialize(
                          numPrograms,
@@ -187,6 +197,7 @@ int main() {
     while (state != 3) {
         displayMenu(state, gradebook);
         cin >> C;
+		C = toupper(C);
         if (state == 0) {
             switch (C) {
             case 'Q':
