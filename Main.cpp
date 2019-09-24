@@ -85,7 +85,7 @@ void handleChangeGrade(Gradebook &gradebook) {
     cin >> gradeType;
     switch (gradeType) {
     case 'P':
-        cout << "Enter the program number (0 - " << gradebook.getNumPrograms() - 1 << ")\n";
+        cout << "Enter the program number (1 - " << gradebook.getNumPrograms() << ")\n";
         cin >> gradeNumber;
         if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
             cout << "Invalid program number.\n";
@@ -93,7 +93,7 @@ void handleChangeGrade(Gradebook &gradebook) {
         }
         break;
     case 'T':
-        cout << "Enter the test number (0 - " << gradebook.getNumTests() - 1 << ")\n";
+        cout << "Enter the test number (1 - " << gradebook.getNumTests() << ")\n";
         cin >> gradeNumber;
         if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
             cout << "Invalid test number.\n";
@@ -112,10 +112,10 @@ void handleChangeGrade(Gradebook &gradebook) {
     cin >> newGrade;
     if (gradeType == 'P') {
         cout << "Changing the grade for program " << gradeNumber << " to " << newGrade << endl;
-        student->setProgramGrade(gradeNumber, newGrade);
+        student->setProgramGrade(gradeNumber - 1, newGrade);
     } else if (gradeType == 'T') {
         cout << "Changing the grade for test " << gradeNumber << " to " << newGrade << endl;
-        student->setTestGrade(gradeNumber, newGrade);
+        student->setTestGrade(gradeNumber - 1, newGrade);
     } else {
         cout << "Changing the final exam grade to " << newGrade << endl;
         student->setFinalExamGrade(newGrade);
@@ -163,15 +163,16 @@ void displayMenu(int state, Gradebook& gradebook) {
         break;
     case 1:
         cout << "GRADEBOOK MENU" << endl;
+        cout << "Type 'S' to re-initialize the semester (all grades will be lost)." << endl;
         cout << "Type 'A' to add a new student." << endl;
         cout << "Type 'P' to enter a program grade for all students." << endl;
         cout << "Type 'T' to enter a test grade for all students." << endl;
         if (gradebook.getNumFinals() > 0) {
             cout << "Type 'F' to enter a final exam grade for all students." << endl;
         }
+        cout << "Type 'C' to change a grade for one student." << endl;
         cout << "Type 'G' to calculate and store the final grade for all students." << endl;
         cout << "Type 'O' to output the grade data." << endl;
-        cout << "Type 'S' to re-initialize the semester (all grades will be lost)." << endl;
         cout << "Type 'Q' to quit" << endl;
     }
 }
