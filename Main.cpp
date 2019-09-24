@@ -22,14 +22,14 @@ void handleSetup(int &state, Gradebook &gradebook) {
     cout << "Enter number of tests (Between 0-4): " << endl;
     cin >> numTests;
     while (numTests<0&&numTests>4){
-      cout << "Error, incorrect value enetered." <<endl<<"Enter number of tests (Between 0-4): " << endl;
+      cout << "Error, incorrect value entered." <<endl<<"Enter number of tests (Between 0-4): " << endl;
       cin >> numTests;
     }
 
     cout << "Enter number of Final Exams: (0 or 1)" << endl;
     cin >> numFinals;
     while (numFinals<0&&numFinals>1){
-      cout << "Error, incorrect value enetered." <<endl<< "Enter number of Final Exams: (0 or 1)" << endl;
+      cout << "Error, incorrect value entered." <<endl<< "Enter number of Final Exams: (0 or 1)" << endl;
       cin >> numFinals;
     }
 
@@ -114,7 +114,7 @@ void handleAddStudent(Gradebook &gradebook) {
     cout << "Enter the new student's first and last name: " << endl;
     cin >> firstName;
     while (firstName.length()) > 20){
-      cout<< "Error, too many charachters, please shorten to less than 20"<<endl;
+      cout<< "Error, too many characters, please shorten to less than 20"<<endl;
       cout << "Enter the new student's first name: " << endl;
       cin >> firstName;
     }
