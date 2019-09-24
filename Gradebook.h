@@ -7,6 +7,11 @@
 
 using namespace std;
 
+struct Node {
+    Student * student;
+    Node * next;
+};
+
 class Gradebook {
 public:
     Gradebook();
@@ -15,12 +20,13 @@ public:
     int getNumPrograms() const;
     int getNumTests() const;
     int getNumFinals() const;
-    Student * addStudent(int id);
+    Student * addStudent(int id, string firstName, string lastName);
     void printStudents(std::ostream& out) const;
     int getNumStudents() const;
     Student * getHead() const;
     void serialize(ostream& out);
     void deserialize(istream& in);
+    Node * getIndex() const;
 private:
     int numPrograms;
     int numTests;
@@ -29,9 +35,11 @@ private:
     int testsWeight;
     int finalExamWeight;
     Student * head;
+    Node * index;
     int numStudents;
     void makeEmpty();
     void deleteStudents();
+    void addToIndex(Student * newStudent);
 };
 
 #endif
