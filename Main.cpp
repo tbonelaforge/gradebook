@@ -37,6 +37,9 @@ void handleSetup(int &state, Gradebook &gradebook) {
 
 void handleQuit(int &state, Gradebook &gradebook) {
     cout << "Saving grades and exiting...";
+    ofstream saveFile;
+    saveFile.open("Grades.dat");
+    gradebook.serialize(saveFile);
     state = 3;
 }
 
@@ -128,7 +131,6 @@ void handleOutputGrades(Gradebook &gradebook) {
     cout << "Outputting the complete gradebook to Grades.out..." << endl;
     ofstream outfile;
     outfile.open("Grades.out");
-    //gradebook.printStudents(outfile);
     GradebookPrinter::printGradebook(gradebook, outfile);
 }
 
@@ -145,9 +147,7 @@ void handleAddStudent(Gradebook &gradebook) {
         Student * newStudent = gradebook.addStudent(studentId);
         newStudent->setFirstName(firstName);
         newStudent->setLastName(lastName);
-        cout << "Successfully put the student in the list!!" << endl;
-        cout << "Now we have students..." << endl;
-        gradebook.printStudents(cout);
+        cout << "Successfully added " << newStudent->getFirstName() << " " << newStudent->getLastName() << endl;
     } catch (const string& reason) {
         cout << "Unable to add new student: " << endl << reason << endl;
     }
@@ -155,13 +155,14 @@ void handleAddStudent(Gradebook &gradebook) {
 }
 
 void displayMenu(int state, Gradebook& gradebook) {
-    cout << "GRADEBOOK MENU" << endl;
     switch (state) {
     case 0:
+        cout << "WELCOME TO GRADEBOOK!" << endl;
         cout << "Type 'S' to setup a new semester." << endl;
         cout << "Type 'Q' to quit." << endl;
         break;
     case 1:
+        cout << "GRADEBOOK MENU" << endl;
         cout << "Type 'A' to add a new student." << endl;
         cout << "Type 'P' to enter a program grade for all students." << endl;
         cout << "Type 'T' to enter a test grade for all students." << endl;
@@ -177,10 +178,18 @@ void displayMenu(int state, Gradebook& gradebook) {
 
 
 int main() {
-    int state = 0; // 0 = unitialized, 1 = initialized, 2 = done
+    int state; // 0 = unitialized, 1 = initialized, 2 = done
     Gradebook gradebook;
     char C;
     bool done = false;
+    ifstream inData;
+    inData.open("Grades.dat");
+    if (!inData) {
+        state = 0;
+    } else {
+        gradebook.deserialize(inData);
+        state = 1;
+    }
     while (state != 3) {
         displayMenu(state, gradebook);
         cin >> C;

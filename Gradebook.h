@@ -5,6 +5,8 @@
 #include <iostream>
 #include "Student.h"
 
+using namespace std;
+
 class Gradebook {
 public:
     Gradebook();
@@ -18,6 +20,8 @@ public:
     void printStudents(std::ostream& out) const;
     int getNumStudents() const;
     Student * getHead() const;
+    void serialize(ostream& out);
+    void deserialize(istream& in);
 private:
     int numPrograms;
     int numTests;
