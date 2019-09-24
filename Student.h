@@ -3,6 +3,7 @@
 #define _STUDENT_H_
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -22,10 +23,14 @@ class Student {
     int getNumTests();
     int getNumFinals();
     int getProgramGrade(int i);
+    void setProgramGrade(int i, int g);
     int getTestGrade(int i);
+    void setTestGrade(int i, int g);
     int getFinalExamGrade();
+    void setFinalExamGrade(int g);
     float getFinalAverage();
     void setFinalAverage(float x);
+    void serialize(ostream& out);
  private:
     Student(Student& other); // Forbid pass by value
     int id;
