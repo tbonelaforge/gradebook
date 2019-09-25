@@ -208,6 +208,7 @@ void handleCalculateGrades(Gradebook &gradebook) {
                                        gradebook.getTestsWeight(),
                                        gradebook.getFinalExamWeight()
                                        );
+        saveGrades(gradebook);
         student = student->next;
     }
     handleOutputGrades(gradebook);
