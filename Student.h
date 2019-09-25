@@ -31,6 +31,7 @@ class Student {
     float getFinalAverage();
     void setFinalAverage(float x);
     void serialize(ostream& out);
+    void calculateFinalAverage(int programsWeight, int testsWeight, int finalExamWeight);
  private:
     Student(Student& other); // Forbid pass by value
     int id;

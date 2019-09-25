@@ -8,6 +8,12 @@
 
 using namespace std;
 
+void saveGrades(Gradebook &gradebook) {
+    ofstream saveFile;
+    saveFile.open("Grades.dat");
+    gradebook.serialize(saveFile);
+}
+
 void handleSetup(int &state, Gradebook &gradebook) {
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
@@ -48,15 +54,25 @@ void handleSetup(int &state, Gradebook &gradebook) {
                          testsWeight,
                          finalExamWeight
                          );
+    saveGrades(gradebook);
     state = 1;
 }
 
+
+
 void handleQuit(int &state, Gradebook &gradebook) {
     cout << "Saving grades and exiting..." << endl;
-    ofstream saveFile;
-    saveFile.open("Grades.dat");
-    gradebook.serialize(saveFile);
-    state = 3;
+    saveGrades(gradebook);
+    state = 2;
+}
+
+void handleOutputGrades(Gradebook &gradebook) {
+    ofstream outfile;
+    outfile.open("Grades.out");
+    GradebookPrinter::printGradebook(gradebook, cout);
+    cout << "Outputing the complete gradebook to Grades.out..." << endl;
+    GradebookPrinter::printGradebook(gradebook, outfile);
+    cout << endl;
 }
 
 void handleAddProgramGrade(Gradebook &gradebook) {
@@ -74,8 +90,10 @@ void handleAddProgramGrade(Gradebook &gradebook) {
              << student->getLastName() << ", " << student->getFirstName() << endl;
         cin >> programGrade;
         student->setProgramGrade(programNumber - 1, programGrade);
+        saveGrades(gradebook);
         current = current->next;
     }
+    handleOutputGrades(gradebook);
 }
 
 void handleAddTestGrade(Gradebook &gradebook) {
@@ -93,8 +111,10 @@ void handleAddTestGrade(Gradebook &gradebook) {
              << student->getLastName() << ", " << student->getFirstName() << endl;
         cin >> testGrade;
         student->setTestGrade(testNumber - 1, testGrade);
+        saveGrades(gradebook);
         current = current->next;
     }
+    handleOutputGrades(gradebook);
 }
 
 void handleAddFinalExamGrade(Gradebook &gradebook) {
@@ -106,8 +126,10 @@ void handleAddFinalExamGrade(Gradebook &gradebook) {
              << student->getLastName() << ", " << student->getFirstName() << endl;
         cin >> finalExamGrade;
         student->setFinalExamGrade(finalExamGrade);
+        saveGrades(gradebook);
         current = current->next;
     }
+    handleOutputGrades(gradebook);
 }
 
 void handleChangeGrade(Gradebook &gradebook) {
@@ -127,18 +149,23 @@ void handleChangeGrade(Gradebook &gradebook) {
     cout << "Getting the student by id and changing their grade..." << endl;
 }
 
+
+
+
 void handleCalculateGrades(Gradebook &gradebook) {
     cout << "Calculating the final grades for every student..." << endl;
+    Student * student = gradebook.getHead();
+    while (student != NULL) {
+        student->calculateFinalAverage(
+                                       gradebook.getProgramsWeight(),
+                                       gradebook.getTestsWeight(),
+                                       gradebook.getFinalExamWeight()
+                                       );
+        student = student->next;
+    }
+    handleOutputGrades(gradebook);
 }
 
-void handleOutputGrades(Gradebook &gradebook) {
-    ofstream outfile;
-    outfile.open("Grades.out");
-    GradebookPrinter::printGradebook(gradebook, outfile);
-    GradebookPrinter::printGradebook(gradebook, cout);
-    cout << "\nOutput the complete gradebook to Grades.out..." << endl;
-    cout << endl;
-}
 
 void handleAddStudent(Gradebook &gradebook) {
     string firstName, lastName;
@@ -171,6 +198,7 @@ void handleAddStudent(Gradebook &gradebook) {
         Student * newStudent = gradebook.addStudent(studentId, firstName, lastName);
         cout << "Successfully added student " << newStudent->getId() << ": "
              << newStudent->getFirstName() << " " << newStudent->getLastName() << endl;
+        saveGrades(gradebook);
     } catch (const string& reason) {
         cout << "Unable to add new student: " << endl << reason << endl;
     }
@@ -207,69 +235,74 @@ int main() {
     char C;
     bool done = false;
     ifstream inData;
-    inData.open("Grades.dat");
-    if (!inData) {
-        state = 0;
-    } else {
-        gradebook.deserialize(inData);
-        state = 1;
-    }
-    while (state != 3) {
-        displayMenu(state, gradebook);
-        cin >> C;
-        if (state == 0) {
-            switch (C) {
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            default :
-                cout << "Unrecognized command." << endl;
-                break;
-            }
-        } else if (state == 1) {
-            switch (C) {
-            case 'A':
-                handleAddStudent(gradebook);
-                break;
-            case 'G':
-                handleCalculateGrades(gradebook);
-                break;
-            case 'O':
-                handleOutputGrades(gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            case 'P':
-                if (gradebook.getNumStudents() > 0) {
-                    handleAddProgramGrade(gradebook);
+    try {
+        inData.open("Grades.dat");
+        if (!inData) {
+            state = 0;
+        } else {
+            gradebook.deserialize(inData);
+            state = 1;
+        }
+        while (state != 2) {
+            displayMenu(state, gradebook);
+            cin >> C;
+            if (state == 0) {
+                switch (C) {
+                case 'Q':
+                    handleQuit(state, gradebook);
+                    break;
+                case 'S':
+                    handleSetup(state, gradebook);
+                    break;
+                default :
+                    cout << "Unrecognized command." << endl;
                     break;
                 }
-            case 'T':
-                if (gradebook.getNumStudents() > 0) {
-                    handleAddTestGrade(gradebook);
+            } else if (state == 1) {
+                switch (C) {
+                case 'A':
+                    handleAddStudent(gradebook);
                     break;
-                }
-            case 'F':
-                if (gradebook.getNumStudents() > 0) {
-                    handleAddFinalExamGrade(gradebook);
+                case 'G':
+                    handleCalculateGrades(gradebook);
                     break;
-                }
-            case 'C':
-                if (gradebook.getNumStudents() > 0) {
-                    handleChangeGrade(gradebook);
+                case 'O':
+                    handleOutputGrades(gradebook);
                     break;
+                case 'S':
+                    handleSetup(state, gradebook);
+                    break;
+                case 'Q':
+                    handleQuit(state, gradebook);
+                    break;
+                case 'P':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddProgramGrade(gradebook);
+                        break;
+                    }
+                case 'T':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddTestGrade(gradebook);
+                        break;
+                    }
+                case 'F':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddFinalExamGrade(gradebook);
+                        break;
+                    }
+                case 'C':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleChangeGrade(gradebook);
+                        break;
+                    }
+                default :
+                    cout << "Unrecognized Command." << endl;
                 }
-            default :
-                cout << "Unrecognized Command." << endl;
             }
         }
+    } catch (string& e) {
+        cout << "Got exception:" << endl << e;
+        exit(1);
     }
     exit(0);
 }

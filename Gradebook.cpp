@@ -165,6 +165,7 @@ void Gradebook::deserialize(istream& in) {
     for (int n = 0; n < numStudents; n++) {
         int i, j, k, grade, id;
         string firstName, lastName;
+        float finalAverage;
         in >> id >> firstName >> lastName;
         Student * student = addStudent(id, firstName, lastName);
         for (int i = 0; i < numPrograms; i++) {
@@ -179,7 +180,19 @@ void Gradebook::deserialize(istream& in) {
             in >> grade;
             student->setFinalExamGrade(grade);
         }
-        in >> grade;
-        student->setFinalAverage(grade);
+        in >> finalAverage;
+        student->setFinalAverage(finalAverage);
     }
+}
+
+int Gradebook::getProgramsWeight() {
+    return programsWeight;
+}
+
+int Gradebook::getTestsWeight() {
+    return testsWeight;
+}
+
+int Gradebook::getFinalExamWeight() {
+    return finalExamWeight;
 }

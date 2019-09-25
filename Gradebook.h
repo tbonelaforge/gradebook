@@ -27,6 +27,9 @@ public:
     void serialize(ostream& out);
     void deserialize(istream& in);
     Node * getIndex() const;
+    int getProgramsWeight();
+    int getTestsWeight();
+    int getFinalExamWeight();
 private:
     int numPrograms;
     int numTests;
