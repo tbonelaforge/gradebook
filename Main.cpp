@@ -57,7 +57,7 @@ void handleAddProgramGrade(Gradebook &gradebook) {
         cout << "Enter Program Grade for "
              << student->getLastName() << ", " << student->getFirstName() << endl;
         cin >> programGrade;
-        student->setProgramGrade(programNumber, programGrade);
+        student->setProgramGrade(programNumber - 1, programGrade);
         current = current->next;
     }
 }
@@ -73,10 +73,10 @@ void handleAddTestGrade(Gradebook &gradebook) {
     Node * current = gradebook.getIndex();
     while (current != NULL) {
         Student * student = current->student;
-        cout << "Enter Test Grade for "
+        cout << "Enter Test " << testNumber << " Grade for "
              << student->getLastName() << ", " << student->getFirstName() << endl;
         cin >> testGrade;
-        student->setTestGrade(testNumber, testGrade);
+        student->setTestGrade(testNumber - 1, testGrade);
         current = current->next;
     }
 }
@@ -116,11 +116,11 @@ void handleCalculateGrades(Gradebook &gradebook) {
 }
 
 void handleOutputGrades(Gradebook &gradebook) {
-    cout << "Outputting the complete gradebook to Grades.out..." << endl;
     ofstream outfile;
     outfile.open("Grades.out");
     GradebookPrinter::printGradebook(gradebook, outfile);
     GradebookPrinter::printGradebook(gradebook, cout);
+    cout << "\nOutput the complete gradebook to Grades.out..." << endl;
     cout << endl;
 }
 
