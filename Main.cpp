@@ -283,7 +283,6 @@ int main() {
     char C;
     bool done = false;
     ifstream inData;
-<<<<<<< HEAD
     try {
         inData.open("Grades.dat");
         if (!inData) {
@@ -347,62 +346,6 @@ int main() {
                 default :
                     cout << "Unrecognized Command." << endl;
                 }
-=======
-    inData.open("Grades.dat");
-    if (!inData) {
-        state = 0;
-    } else {
-        gradebook.deserialize(inData);
-        state = 1;
-    }
-    while (state != 3) {
-        displayMenu(state, gradebook);
-        cin >> C;
-		C = toupper(C);
-        if (state == 0) {
-            switch (C) {
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            default :
-                cout << "Unrecognized command." << endl;
-                break;
-            }
-        } else if (state == 1) {
-            switch (C) {
-            case 'A':
-                handleAddStudent(gradebook);
-                break;
-            case 'P':
-                handleAddProgramGrade(gradebook);
-                break;
-            case 'T':
-                handleAddTestGrade(gradebook);
-                break;
-            case 'F':
-                handleAddFinalExamGrade(gradebook);
-                break;
-           case 'C':
-                handleChangeGrade(gradebook);
-                break;
-            case 'G':
-                handleCalculateGrades(gradebook);
-                break;
-            case 'O':
-                handleOutputGrades(gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            default :
-                cout << "Unrecognized Command." << endl;
->>>>>>> master
             }
         }
     } catch (string& e) {
