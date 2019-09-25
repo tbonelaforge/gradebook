@@ -21,6 +21,7 @@ public:
     int getNumTests() const;
     int getNumFinals() const;
     Student * addStudent(int id, string firstName, string lastName);
+    Student * findStudentById(int id);
     void printStudents(std::ostream& out) const;
     int getNumStudents() const;
     Student * getHead() const;

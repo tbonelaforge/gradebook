@@ -111,7 +111,20 @@ void Gradebook::addToIndex(Student * newStudent) {
     newNode->next = current;
 }
 
-void Gradebook::printStudents(ostream& out) const {
+
+Student * Gradebook::findStudentById(int id) {
+    Student * current = head;
+    while (current != NULL) {
+        if (current->getId() == id) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+
+void Gradebook::printStudents(std::ostream& out) const {
     Student * current = head;
     while (current != NULL) {
         out << "Student " << current->getId() << ": " << current->getFirstName() << " " << current->getLastName() << endl;
