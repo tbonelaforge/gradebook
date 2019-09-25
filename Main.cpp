@@ -93,21 +93,61 @@ void handleAddFinalExamGrade(Gradebook &gradebook) {
 }
 
 void handleChangeGrade(Gradebook &gradebook) {
-    int studentNumber;
-    int newGrade;
+    int studentId, gradeNumber, newGrade;
     char gradeType;
+    Student * student;
     cout << "Enter the student number: " << endl;
-    cin >> studentNumber;
-    cout << "Enter the new grade: " << endl;
-    cin >> newGrade;
+    cin >> studentId;
+    student = gradebook.findStudentById(studentId);
+    if (student == NULL) {
+        cout << "Student number " << studentId << " not found\n";
+        return;
+    }
     if (gradebook.getNumFinals() > 0) {
         cout << "Enter the type of grade: ('P' for program, 'T' for test, 'F' for final exam)" << endl;
     } else {
         cout << "Enter the type of grade: ('P' for program, 'T' for test)" << endl;
     }
     cin >> gradeType;
-    cout << "Getting the student by id and changing their grade..." << endl;
+    switch (gradeType) {
+    case 'P':
+        cout << "Enter the program number (1 - " << gradebook.getNumPrograms() << ")\n";
+        cin >> gradeNumber;
+        if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
+            cout << "Invalid program number.\n";
+            return;
+        }
+        break;
+    case 'T':
+        cout << "Enter the test number (1 - " << gradebook.getNumTests() << ")\n";
+        cin >> gradeNumber;
+        if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
+            cout << "Invalid test number.\n";
+            return;
+        }
+        break;
+    case 'F':
+        if (gradebook.getNumFinals() > 0) {
+            break;
+        }
+    default:
+        cout << "Unrecognized Grade Type\n";
+        return;
+    }
+    cout << "Enter the new grade: " << endl;
+    cin >> newGrade;
+    if (gradeType == 'P') {
+        cout << "Changing the grade for program " << gradeNumber << " to " << newGrade << endl;
+        student->setProgramGrade(gradeNumber - 1, newGrade);
+    } else if (gradeType == 'T') {
+        cout << "Changing the grade for test " << gradeNumber << " to " << newGrade << endl;
+        student->setTestGrade(gradeNumber - 1, newGrade);
+    } else {
+        cout << "Changing the final exam grade to " << newGrade << endl;
+        student->setFinalExamGrade(newGrade);
+    }
 }
+
 
 void handleCalculateGrades(Gradebook &gradebook) {
     cout << "Calculating the final grades for every student..." << endl;
@@ -167,15 +207,16 @@ void displayMenu(int state, Gradebook& gradebook) {
         break;
     case 1:
         cout << "GRADEBOOK MENU" << endl;
+        cout << "Type 'S' to re-initialize the semester (all grades will be lost)." << endl;
         cout << "Type 'A' to add a new student." << endl;
         cout << "Type 'P' to enter a program grade for all students." << endl;
         cout << "Type 'T' to enter a test grade for all students." << endl;
         if (gradebook.getNumFinals() > 0) {
             cout << "Type 'F' to enter a final exam grade for all students." << endl;
         }
+        cout << "Type 'C' to change a grade for one student." << endl;
         cout << "Type 'G' to calculate and store the final grade for all students." << endl;
         cout << "Type 'O' to output the grade data." << endl;
-        cout << "Type 'S' to re-initialize the semester (all grades will be lost)." << endl;
         cout << "Type 'Q' to quit" << endl;
     }
 }
