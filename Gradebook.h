@@ -3,6 +3,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include "Student.h"
 
 using namespace std;
@@ -22,6 +23,7 @@ public:
     Student * getHead() const;
     void serialize(ostream& out);
     void deserialize(istream& in);
+    static ofstream transLogOut;
 private:
     int numPrograms;
     int numTests;
