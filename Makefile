@@ -18,3 +18,4 @@ clean:
 	rm -f Main
 	rm -f *~
 	rm -f Grades.out
+	rm -f Grades.dat

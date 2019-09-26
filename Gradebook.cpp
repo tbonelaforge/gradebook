@@ -1,11 +1,12 @@
-
+#include <iostream>
 #include <cstddef>
 #include <string>
+#include <cstdlib>
 
 #include "Gradebook.h"
 
-
-Gradebook::Gradebook() {
+using namespace std;
+Gradebook::Gradebook() : head(NULL) {
     makeEmpty();
 }
 
@@ -81,10 +82,23 @@ Student * Gradebook::addStudent(int newId) {
     return newStudent;
 }
 
+
+Student * Gradebook::findStudentById(int id) {
+    Student * current = head;
+    while (current != NULL) {
+        if (current->getId() == id) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+
 void Gradebook::printStudents(std::ostream& out) const {
     Student * current = head;
     while (current != NULL) {
-        out << "Student " << current->getId() << ": " << current->getFirstName() << " " << current->getLastName() << std::endl;
+        out << "Student " << current->getId() << ": " << current->getFirstName() << " " << current->getLastName() << endl;
         current = current->next;
     }
 }
@@ -95,4 +109,59 @@ int Gradebook::getNumStudents() const {
 
 Student * Gradebook::getHead() const {
     return head;
+}
+
+void Gradebook::serialize(ostream& out) {
+    out << numPrograms << " ";
+    out << numTests << " ";
+    out << numFinals << endl;
+    out << programsWeight << " ";
+    out << testsWeight << " ";
+    out << finalExamWeight << endl;
+    out << numStudents << endl;
+    Student * current = head;
+    while (current != NULL) {
+        current->serialize(out);
+        out << endl;
+        current = current->next;
+    }
+}
+
+void Gradebook::deserialize(istream& in) {
+    int numPrograms, numTests, numFinals;
+    int programsWeight, testsWeight, finalExamWeight;
+    int numStudents;
+    in >> numPrograms >> numTests >> numFinals;
+    in >> programsWeight >> testsWeight >> finalExamWeight;
+    initialize(
+               numPrograms,
+               numTests,
+               numFinals,
+               programsWeight,
+               testsWeight,
+               finalExamWeight
+               );
+    in >> numStudents;
+    for (int n = 0; n < numStudents; n++) {
+        int i, j, k, grade, id;
+        string firstName, lastName;
+        in >> id >> firstName >> lastName;
+        Student * student = addStudent(id);
+        student->setFirstName(firstName);
+        student->setLastName(lastName);
+        for (int i = 0; i < numPrograms; i++) {
+            in >> grade;
+            student->setProgramGrade(i, grade);
+        }
+        for (int i = 0; i < numTests; i++) {
+            in >> grade;
+            student->setTestGrade(i, grade);
+        }
+        for (int i = 0; i < numFinals; i++) {
+            in >> grade;
+            student->setFinalExamGrade(grade);
+        }
+        in >> grade;
+        student->setFinalAverage(grade);
+    }
 }
