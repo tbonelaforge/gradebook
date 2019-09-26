@@ -31,10 +31,19 @@ public:
     int getProgramsWeight();
     int getTestsWeight();
     int getFinalExamWeight();
+    void setProgramRecorded(int i);
+    bool getProgramRecorded(int i);
+    void setTestRecorded(int i);
+    bool getTestRecorded(int i);
+    void setFinalExamRecorded();
+    bool getFinalExamRecorded();
 private:
     int numPrograms;
+    bool * programRecorded;
     int numTests;
+    bool * testRecorded;
     int numFinals;
+    bool finalExamRecorded;
     int programsWeight;
     int testsWeight;
     int finalExamWeight;

@@ -80,7 +80,7 @@ void handleOutputGrades(Gradebook &gradebook) {
     ofstream outfile;
     outfile.open("Grades.out");
     GradebookPrinter::printGradebook(gradebook, cout);
-    cout << "Outputing the complete gradebook to Grades.out..." << endl;
+    cout << "\nOutputing the complete gradebook to Grades.out..." << endl;
     GradebookPrinter::printGradebook(gradebook, outfile);
     cout << endl;
 }
@@ -90,7 +90,11 @@ void handleAddProgramGrade(Gradebook &gradebook) {
     cout << "Enter programming assignment number: (1 - " << gradebook.getNumPrograms() << ")" << endl;
     cin >> programNumber;
     if (programNumber < 0 || programNumber > gradebook.getNumPrograms()) {
-        cout << "Invalid Program Number.";
+        cout << "Invalid Program Number." << endl;
+        return;
+    }
+    if (gradebook.getProgramRecorded(programNumber)) {
+        cout << "Program " << programNumber << " already recorded..." << endl;
         return;
     }
     Node * current = gradebook.getIndex();
@@ -103,6 +107,8 @@ void handleAddProgramGrade(Gradebook &gradebook) {
         saveGrades(gradebook);
         current = current->next;
     }
+    gradebook.setProgramRecorded(programNumber);
+    saveGrades(gradebook);
     handleOutputGrades(gradebook);
 }
 
@@ -111,7 +117,11 @@ void handleAddTestGrade(Gradebook &gradebook) {
     cout << "Enter test number: (1 - " << gradebook.getNumTests() << ")" << endl;
     cin >> testNumber;
     if (testNumber < 0 || testNumber > gradebook.getNumTests()) {
-        cout << "Invalid Test Number.";
+        cout << "Invalid Test Number." << endl;
+        return;
+    }
+    if (gradebook.getTestRecorded(testNumber)) {
+        cout << "Test " << testNumber << " already recorded..." << endl;
         return;
     }
     Node * current = gradebook.getIndex();
@@ -124,12 +134,18 @@ void handleAddTestGrade(Gradebook &gradebook) {
         saveGrades(gradebook);
         current = current->next;
     }
+    gradebook.setTestRecorded(testNumber);
+    saveGrades(gradebook);
     handleOutputGrades(gradebook);
 }
 
 void handleAddFinalExamGrade(Gradebook &gradebook) {
     int finalExamGrade;
     Node * current = gradebook.getIndex();
+    if (gradebook.getFinalExamRecorded()) {
+        cout << "Final Exam Already Recorded..." << endl;
+        return;
+    }
     while (current != NULL) {
         Student * student = current->student;
         cout << "Enter Final Exam Grade for "
@@ -139,6 +155,8 @@ void handleAddFinalExamGrade(Gradebook &gradebook) {
         saveGrades(gradebook);
         current = current->next;
     }
+    gradebook.setFinalExamRecorded();
+    saveGrades(gradebook);
     handleOutputGrades(gradebook);
 }
 
