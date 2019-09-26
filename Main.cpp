@@ -85,7 +85,7 @@ void handleOutputGrades(Gradebook &gradebook, bool idMode) {
     ofstream outfile;
     outfile.open("Grades.out");
     GradebookPrinter::printGradebook(gradebook, cout, idMode);
-    cout << "Outputing the complete gradebook to Grades.out..." << endl;
+    cout << "\nOutputing the complete gradebook to Grades.out..." << endl;
     GradebookPrinter::printGradebook(gradebook, outfile, idMode);
     cout << endl;
 }
@@ -95,7 +95,11 @@ void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
     cout << "Enter programming assignment number: (1 - " << gradebook.getNumPrograms() << ")" << endl;
     cin >> programNumber;
     if (programNumber < 0 || programNumber > gradebook.getNumPrograms()) {
-        cout << "Invalid Program Number.";
+        cout << "Invalid Program Number." << endl;
+        return;
+    }
+    if (gradebook.getProgramRecorded(programNumber)) {
+        cout << "Program " << programNumber << " already recorded..." << endl;
         return;
     }
     Student * student;
@@ -121,17 +125,21 @@ void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
             student = student->next;
         }
     }
+    gradebook.setProgramRecorded(programNumber);
+    saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
 }
 
 void handleAddTestGrade(Gradebook &gradebook, bool idMode) {
-    cout << "Inside handleAddTestGrade, got called with idMode:" << endl;
-    cout << idMode;
     int testNumber, testGrade;
     cout << "Enter test number: (1 - " << gradebook.getNumTests() << ")" << endl;
     cin >> testNumber;
     if (testNumber < 0 || testNumber > gradebook.getNumTests()) {
-        cout << "Invalid Test Number.";
+        cout << "Invalid Test Number." << endl;
+        return;
+    }
+    if (gradebook.getTestRecorded(testNumber)) {
+        cout << "Test " << testNumber << " already recorded..." << endl;
         return;
     }
     Student * student;
@@ -157,12 +165,18 @@ void handleAddTestGrade(Gradebook &gradebook, bool idMode) {
             student = student->next;
         }
     }
+    gradebook.setTestRecorded(testNumber);
+    saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
 }
 
 void handleAddFinalExamGrade(Gradebook &gradebook, bool idMode) {
     int finalExamGrade;
     Student * student;
+    if (gradebook.getFinalExamRecorded()) {
+        cout << "Final Exam Already Recorded..." << endl;
+        return;
+    }
     if (!idMode) {
         Node * current = gradebook.getIndex();
         while (current != NULL) {
@@ -185,6 +199,8 @@ void handleAddFinalExamGrade(Gradebook &gradebook, bool idMode) {
             student = student->next;
         }
     }
+    gradebook.setFinalExamRecorded();
+    saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
 }
 

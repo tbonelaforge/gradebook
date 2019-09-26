@@ -11,14 +11,25 @@ Gradebook::Gradebook() : head(NULL), index(NULL) {
 }
 
 Gradebook::~Gradebook() {
+    delete [] programRecorded;
+    delete [] testRecorded;
     deleteStudents();
 }
 
 void Gradebook::initialize(int p, int t, int f, int pw, int tw, int fw) {
     makeEmpty();
     numPrograms = p;
+    programRecorded = new bool[numPrograms];
+    for (int i = 0; i < numPrograms; i++) {
+        programRecorded[i] = false;
+    }
     numTests = t;
+    testRecorded = new bool[numTests];
+    for (int i = 0; i < numTests; i++) {
+        testRecorded[i] = false;
+    }
     numFinals = f;
+    finalExamRecorded = false;
     programsWeight = pw;
     testsWeight = tw;
     if (numFinals > 0) {
@@ -40,8 +51,11 @@ int Gradebook::getNumFinals() const {
 
 void Gradebook::makeEmpty() {
     numPrograms = -1;
+    programRecorded = NULL;
     numTests = -1;
+    testRecorded = NULL;
     numFinals = -1;
+    finalExamRecorded = false;
     programsWeight = -1;
     testsWeight = -1;
     finalExamWeight = -1;
@@ -158,12 +172,22 @@ void Gradebook::serialize(ostream& out) {
         out << endl;
         current = current->next;
     }
+    for (int i = 0; i < numPrograms; i++) {
+        out << programRecorded[i] << " ";
+    }
+    out << endl;
+    for (int i = 0; i < numTests; i++) {
+        out << testRecorded[i] << " ";
+    }
+    out << endl;
+    out << finalExamRecorded << endl;
 }
 
 void Gradebook::deserialize(istream& in) {
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
     int numStudents;
+    bool recorded;
     in >> numPrograms >> numTests >> numFinals;
     in >> programsWeight >> testsWeight >> finalExamWeight;
     initialize(
@@ -196,6 +220,22 @@ void Gradebook::deserialize(istream& in) {
         in >> finalAverage;
         student->setFinalAverage(finalAverage);
     }
+    for (int i = 0; i < numPrograms; i++) {
+        in >> recorded;
+        if (recorded) {
+            setProgramRecorded(i);
+        }
+    }
+    for (int i = 0; i < numTests; i++) {
+        in >> recorded;
+        if (recorded) {
+            setTestRecorded(i);
+        }
+    }
+    in >> recorded;
+    if (recorded) {
+        setFinalExamRecorded();
+    }
 }
 
 int Gradebook::getProgramsWeight() {
@@ -208,4 +248,28 @@ int Gradebook::getTestsWeight() {
 
 int Gradebook::getFinalExamWeight() {
     return finalExamWeight;
+}
+
+void Gradebook::setProgramRecorded(int i) {
+    programRecorded[i] = true;
+}
+
+bool Gradebook::getProgramRecorded(int i) {
+    return programRecorded[i];
+}
+
+void Gradebook::setTestRecorded(int i) {
+    testRecorded[i] = true;
+}
+
+bool Gradebook::getTestRecorded(int i) {
+    return testRecorded[i];
+}
+
+void Gradebook::setFinalExamRecorded() {
+    finalExamRecorded = true;
+}
+
+bool Gradebook::getFinalExamRecorded() {
+    return finalExamRecorded;
 }
