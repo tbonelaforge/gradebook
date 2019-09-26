@@ -76,16 +76,21 @@ void handleQuit(int &state, Gradebook &gradebook) {
     state = 2;
 }
 
-void handleOutputGrades(Gradebook &gradebook) {
+void handleModeToggle(bool &idMode) {
+    idMode = !idMode;
+    cout << "Toggled output mode to: " << ( idMode ? "by Id" : "by Name" ) << endl;
+}
+
+void handleOutputGrades(Gradebook &gradebook, bool idMode) {
     ofstream outfile;
     outfile.open("Grades.out");
-    GradebookPrinter::printGradebook(gradebook, cout);
+    GradebookPrinter::printGradebook(gradebook, cout, idMode);
     cout << "Outputing the complete gradebook to Grades.out..." << endl;
-    GradebookPrinter::printGradebook(gradebook, outfile);
+    GradebookPrinter::printGradebook(gradebook, outfile, idMode);
     cout << endl;
 }
 
-void handleAddProgramGrade(Gradebook &gradebook) {
+void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
     int programNumber, programGrade;
     cout << "Enter programming assignment number: (1 - " << gradebook.getNumPrograms() << ")" << endl;
     cin >> programNumber;
@@ -93,20 +98,35 @@ void handleAddProgramGrade(Gradebook &gradebook) {
         cout << "Invalid Program Number.";
         return;
     }
-    Node * current = gradebook.getIndex();
-    while (current != NULL) {
-        Student * student = current->student;
-        cout << "Enter Program Grade for "
-             << student->getLastName() << ", " << student->getFirstName() << endl;
-        cin >> programGrade;
-        student->setProgramGrade(programNumber - 1, programGrade);
-        saveGrades(gradebook);
-        current = current->next;
+    Student * student;
+    if (!idMode) {
+        Node * current = gradebook.getIndex();
+        while (current != NULL) {
+            student = current->student;
+            cout << "Enter Program Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> programGrade;
+            student->setProgramGrade(programNumber - 1, programGrade);
+            saveGrades(gradebook);
+            current = current->next;
+        }
+    } else {
+        student = gradebook.getHead();
+        while (student != NULL) {
+            cout << "Enter Program Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> programGrade;
+            student->setProgramGrade(programNumber - 1, programGrade);
+            saveGrades(gradebook);
+            student = student->next;
+        }
     }
-    handleOutputGrades(gradebook);
+    handleOutputGrades(gradebook, idMode);
 }
 
-void handleAddTestGrade(Gradebook &gradebook) {
+void handleAddTestGrade(Gradebook &gradebook, bool idMode) {
+    cout << "Inside handleAddTestGrade, got called with idMode:" << endl;
+    cout << idMode;
     int testNumber, testGrade;
     cout << "Enter test number: (1 - " << gradebook.getNumTests() << ")" << endl;
     cin >> testNumber;
@@ -114,32 +134,58 @@ void handleAddTestGrade(Gradebook &gradebook) {
         cout << "Invalid Test Number.";
         return;
     }
-    Node * current = gradebook.getIndex();
-    while (current != NULL) {
-        Student * student = current->student;
-        cout << "Enter Test " << testNumber << " Grade for "
-             << student->getLastName() << ", " << student->getFirstName() << endl;
-        cin >> testGrade;
-        student->setTestGrade(testNumber - 1, testGrade);
-        saveGrades(gradebook);
-        current = current->next;
+    Student * student;
+    if (!idMode) {
+        Node * current = gradebook.getIndex();
+        while (current != NULL) {
+            student = current->student;
+            cout << "Enter Test " << testNumber << " Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> testGrade;
+            student->setTestGrade(testNumber - 1, testGrade);
+            saveGrades(gradebook);
+            current = current->next;
+        }
+    } else {
+        student = gradebook.getHead();
+        while (student != NULL) {
+            cout << "Enter Test " << testNumber << " Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> testGrade;
+            student->setTestGrade(testNumber - 1, testGrade);
+            saveGrades(gradebook);
+            student = student->next;
+        }
     }
-    handleOutputGrades(gradebook);
+    handleOutputGrades(gradebook, idMode);
 }
 
-void handleAddFinalExamGrade(Gradebook &gradebook) {
+void handleAddFinalExamGrade(Gradebook &gradebook, bool idMode) {
     int finalExamGrade;
-    Node * current = gradebook.getIndex();
-    while (current != NULL) {
-        Student * student = current->student;
-        cout << "Enter Final Exam Grade for "
-             << student->getLastName() << ", " << student->getFirstName() << endl;
-        cin >> finalExamGrade;
-        student->setFinalExamGrade(finalExamGrade);
-        saveGrades(gradebook);
-        current = current->next;
+    Student * student;
+    if (!idMode) {
+        Node * current = gradebook.getIndex();
+        while (current != NULL) {
+            student = current->student;
+            cout << "Enter Final Exam Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> finalExamGrade;
+            student->setFinalExamGrade(finalExamGrade);
+            saveGrades(gradebook);
+            current = current->next;
+        }
+    } else {
+        student = gradebook.getHead();
+        while (student != NULL) {
+            cout << "Enter Final Exam Grade for "
+                 << student->getLastName() << ", " << student->getFirstName() << endl;
+            cin >> finalExamGrade;
+            student->setFinalExamGrade(finalExamGrade);
+            saveGrades(gradebook);
+            student = student->next;
+        }
     }
-    handleOutputGrades(gradebook);
+    handleOutputGrades(gradebook, idMode);
 }
 
 void handleChangeGrade(Gradebook &gradebook) {
@@ -199,7 +245,7 @@ void handleChangeGrade(Gradebook &gradebook) {
 }
 
 
-void handleCalculateGrades(Gradebook &gradebook) {
+void handleCalculateGrades(Gradebook &gradebook, bool idMode) {
     cout << "Calculating the final grades for every student..." << endl;
     Student * student = gradebook.getHead();
     while (student != NULL) {
@@ -211,7 +257,7 @@ void handleCalculateGrades(Gradebook &gradebook) {
         saveGrades(gradebook);
         student = student->next;
     }
-    handleOutputGrades(gradebook);
+    handleOutputGrades(gradebook, idMode);
 }
 
 
@@ -253,7 +299,7 @@ void handleAddStudent(Gradebook &gradebook) {
 
 }
 
-void displayMenu(int state, Gradebook& gradebook) {
+void displayMenu(int state, Gradebook& gradebook, bool idMode) {
     switch (state) {
     case 0:
         cout << "WELCOME TO GRADEBOOK!" << endl;
@@ -273,6 +319,7 @@ void displayMenu(int state, Gradebook& gradebook) {
         cout << "Type 'C' to change a grade for one student." << endl;
         cout << "Type 'G' to calculate and store the final grade for all students." << endl;
         cout << "Type 'O' to output the grade data." << endl;
+        cout << "Type 'M' to toggle the output mode (currently " << ((idMode) ? "by Id)" : "by Name)") << endl;
         cout << "Type 'Q' to quit" << endl;
     }
 }
@@ -280,6 +327,7 @@ void displayMenu(int state, Gradebook& gradebook) {
 
 int main() {
     int state; // 0 = unitialized, 1 = initialized, 2 = done
+    bool idMode = true; // Whether to print students by id or by name.
     Gradebook gradebook;
     char C;
     bool done = false;
@@ -293,7 +341,7 @@ int main() {
             state = 1;
         }
         while (state != 2) {
-            displayMenu(state, gradebook);
+            displayMenu(state, gradebook, idMode);
             cin >> C;
             if (state == 0) {
                 switch (C) {
@@ -313,10 +361,10 @@ int main() {
                     handleAddStudent(gradebook);
                     break;
                 case 'G':
-                    handleCalculateGrades(gradebook);
+                    handleCalculateGrades(gradebook, idMode);
                     break;
                 case 'O':
-                    handleOutputGrades(gradebook);
+                    handleOutputGrades(gradebook, idMode);
                     break;
                 case 'S':
                     handleSetup(state, gradebook);
@@ -324,19 +372,22 @@ int main() {
                 case 'Q':
                     handleQuit(state, gradebook);
                     break;
+                case 'M':
+                    handleModeToggle(idMode);
+                    break;
                 case 'P':
                     if (gradebook.getNumStudents() > 0) {
-                        handleAddProgramGrade(gradebook);
+                        handleAddProgramGrade(gradebook, idMode);
                         break;
                     }
                 case 'T':
                     if (gradebook.getNumStudents() > 0) {
-                        handleAddTestGrade(gradebook);
+                        handleAddTestGrade(gradebook, idMode);
                         break;
                     }
                 case 'F':
                     if (gradebook.getNumStudents() > 0) {
-                        handleAddFinalExamGrade(gradebook);
+                        handleAddFinalExamGrade(gradebook, idMode);
                         break;
                     }
                 case 'C':
