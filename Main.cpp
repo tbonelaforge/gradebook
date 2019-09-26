@@ -379,5 +379,5 @@ int main() {
         cout << "Got exception:" << endl << e;
         exit(1);
     }
-    exit(0);
+    return 0;
 }

@@ -7,6 +7,8 @@ using namespace std;
 void GradebookPrinter::printGradebook(Gradebook& gradebook, ostream& out) {
     GradebookPrinter gp(gradebook);
     gp.print(out);
+    
+    Gradebook::transLogOut << "Print to Grades.out" << endl;
 }
 
 GradebookPrinter::GradebookPrinter(Gradebook& gradebook) : gradebook(gradebook) {

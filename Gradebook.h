@@ -3,6 +3,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include "Student.h"
 
 using namespace std;
@@ -37,6 +38,8 @@ public:
     bool getTestRecorded(int i);
     void setFinalExamRecorded();
     bool getFinalExamRecorded();
+    static ofstream transLogOut;
+  
 private:
     int numPrograms;
     bool * programRecorded;
