@@ -248,6 +248,10 @@ void handleChangeGrade(Gradebook &gradebook) {
     }
     cout << "Enter the new grade: " << endl;
     cin >> newGrade;
+	while (newGrade < 0 || newGrade>100) {
+		cout << "Error, please enter a value between 0-100: " << endl;
+		cin >> newGrade;
+	}
     if (gradeType == 'P') {
         cout << "Changing the grade for program " << gradeNumber << " to " << newGrade << endl;
         student->setProgramGrade(gradeNumber - 1, newGrade);
@@ -420,5 +424,5 @@ int main() {
         cout << "Got exception:" << endl << e;
         exit(1);
     }
-    exit(0);
+    return 0;
 }
