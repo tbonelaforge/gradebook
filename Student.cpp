@@ -114,6 +114,7 @@ void Student::serialize(ostream& out) {
 
 void Student::calculateFinalAverage(int programsWeight, int testsWeight, int finalExamWeight) {
     float programAverage, testAverage;
+	float d = 100;
     float programTotal = 0.0, testTotal = 0.0;
     for (int i = 0; i < numPrograms; i++) {
         if (programGrades[i] > -1) programTotal += (float) programGrades[i];
@@ -124,10 +125,10 @@ void Student::calculateFinalAverage(int programsWeight, int testsWeight, int fin
     }
     testAverage = testTotal / (float) numTests;
     float finalTotal =
-        programAverage / 100.0 * programsWeight +
-        testAverage / 100.0 * testsWeight;
+        programAverage / d * programsWeight +
+        testAverage / d * testsWeight;
     if (numFinals > 0) {
-        if (finalExamGrade > -1) finalTotal += finalExamGrade / 100.0 * finalExamWeight;
+        if (finalExamGrade > -1) finalTotal += finalExamGrade / d * finalExamWeight;
     }
     setFinalAverage(finalTotal);
 }
