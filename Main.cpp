@@ -8,6 +8,12 @@
 
 using namespace std;
 
+void saveGrades(Gradebook &gradebook) {
+    ofstream saveFile;
+    saveFile.open("Grades.dat");
+    gradebook.serialize(saveFile);
+}
+
 void handleSetup(int &state, Gradebook &gradebook) {
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
@@ -58,38 +64,100 @@ void handleSetup(int &state, Gradebook &gradebook) {
                          testsWeight,
                          finalExamWeight
                          );
+    saveGrades(gradebook);
     state = 1;
 }
 
+
+
 void handleQuit(int &state, Gradebook &gradebook) {
-    cout << "Saving grades and exiting...";
-    ofstream saveFile;
-    saveFile.open("Grades.dat");
-    gradebook.serialize(saveFile);
-    state = 3;
+    cout << "Saving grades and exiting..." << endl;
+    saveGrades(gradebook);
+    state = 2;
+}
+
+void handleOutputGrades(Gradebook &gradebook) {
+    ofstream outfile;
+    outfile.open("Grades.out");
+    GradebookPrinter::printGradebook(gradebook, cout);
+    cout << "\nOutputing the complete gradebook to Grades.out..." << endl;
+    GradebookPrinter::printGradebook(gradebook, outfile);
+    cout << endl;
 }
 
 void handleAddProgramGrade(Gradebook &gradebook) {
     int programNumber, programGrade;
-    cout << "Enter programming assignment number: " << endl;
+    cout << "Enter programming assignment number: (1 - " << gradebook.getNumPrograms() << ")" << endl;
     cin >> programNumber;
-    cout << "Looping through all students in gradebook, prompting for grades each time" << endl;
+    if (programNumber < 0 || programNumber > gradebook.getNumPrograms()) {
+        cout << "Invalid Program Number." << endl;
+        return;
+    }
+    if (gradebook.getProgramRecorded(programNumber)) {
+        cout << "Program " << programNumber << " already recorded..." << endl;
+        return;
+    }
+    Node * current = gradebook.getIndex();
+    while (current != NULL) {
+        Student * student = current->student;
+        cout << "Enter Program Grade for "
+             << student->getLastName() << ", " << student->getFirstName() << endl;
+        cin >> programGrade;
+        student->setProgramGrade(programNumber - 1, programGrade);
+        saveGrades(gradebook);
+        current = current->next;
+    }
+    gradebook.setProgramRecorded(programNumber);
+    saveGrades(gradebook);
+    handleOutputGrades(gradebook);
 }
 
 void handleAddTestGrade(Gradebook &gradebook) {
     int testNumber, testGrade;
-    cout << "Enter test number: " << endl;
+    cout << "Enter test number: (1 - " << gradebook.getNumTests() << ")" << endl;
     cin >> testNumber;
-    cout << "Looping through all students in gradebook, prompting for grades each time." << endl;
+    if (testNumber < 0 || testNumber > gradebook.getNumTests()) {
+        cout << "Invalid Test Number." << endl;
+        return;
+    }
+    if (gradebook.getTestRecorded(testNumber)) {
+        cout << "Test " << testNumber << " already recorded..." << endl;
+        return;
+    }
+    Node * current = gradebook.getIndex();
+    while (current != NULL) {
+        Student * student = current->student;
+        cout << "Enter Test " << testNumber << " Grade for "
+             << student->getLastName() << ", " << student->getFirstName() << endl;
+        cin >> testGrade;
+        student->setTestGrade(testNumber - 1, testGrade);
+        saveGrades(gradebook);
+        current = current->next;
+    }
+    gradebook.setTestRecorded(testNumber);
+    saveGrades(gradebook);
+    handleOutputGrades(gradebook);
 }
 
 void handleAddFinalExamGrade(Gradebook &gradebook) {
     int finalExamGrade;
-    if (gradebook.getNumFinals() < 1) {
-        cout << "This class has no final exam.";
+    Node * current = gradebook.getIndex();
+    if (gradebook.getFinalExamRecorded()) {
+        cout << "Final Exam Already Recorded..." << endl;
         return;
     }
-    cout << "Looping through all students in gradebook, prompting for grades each time..." << endl;
+    while (current != NULL) {
+        Student * student = current->student;
+        cout << "Enter Final Exam Grade for "
+             << student->getLastName() << ", " << student->getFirstName() << endl;
+        cin >> finalExamGrade;
+        student->setFinalExamGrade(finalExamGrade);
+        saveGrades(gradebook);
+        current = current->next;
+    }
+    gradebook.setFinalExamRecorded();
+    saveGrades(gradebook);
+    handleOutputGrades(gradebook);
 }
 
 void handleChangeGrade(Gradebook &gradebook) {
@@ -151,14 +219,19 @@ void handleChangeGrade(Gradebook &gradebook) {
 
 void handleCalculateGrades(Gradebook &gradebook) {
     cout << "Calculating the final grades for every student..." << endl;
+    Student * student = gradebook.getHead();
+    while (student != NULL) {
+        student->calculateFinalAverage(
+                                       gradebook.getProgramsWeight(),
+                                       gradebook.getTestsWeight(),
+                                       gradebook.getFinalExamWeight()
+                                       );
+        saveGrades(gradebook);
+        student = student->next;
+    }
+    handleOutputGrades(gradebook);
 }
 
-void handleOutputGrades(Gradebook &gradebook) {
-    cout << "Outputting the complete gradebook to Grades.out..." << endl;
-    ofstream outfile;
-    outfile.open("Grades.out");
-    GradebookPrinter::printGradebook(gradebook, outfile);
-}
 
 void handleAddStudent(Gradebook &gradebook) {
     string firstName, lastName;
@@ -188,10 +261,10 @@ void handleAddStudent(Gradebook &gradebook) {
 
     cout << "Adding " << firstName << " " << lastName << " (" << studentId << ") to the gradebook" << endl;
     try {
-        Student * newStudent = gradebook.addStudent(studentId);
-        newStudent->setFirstName(firstName);
-        newStudent->setLastName(lastName);
-        cout << "Successfully added " << newStudent->getFirstName() << " " << newStudent->getLastName() << endl;
+        Student * newStudent = gradebook.addStudent(studentId, firstName, lastName);
+        cout << "Successfully added student " << newStudent->getId() << ": "
+             << newStudent->getFirstName() << " " << newStudent->getLastName() << endl;
+        saveGrades(gradebook);
     } catch (const string& reason) {
         cout << "Unable to add new student: " << endl << reason << endl;
     }
@@ -209,10 +282,11 @@ void displayMenu(int state, Gradebook& gradebook) {
         cout << "GRADEBOOK MENU" << endl;
         cout << "Type 'S' to re-initialize the semester (all grades will be lost)." << endl;
         cout << "Type 'A' to add a new student." << endl;
-        cout << "Type 'P' to enter a program grade for all students." << endl;
-        cout << "Type 'T' to enter a test grade for all students." << endl;
-        if (gradebook.getNumFinals() > 0) {
-            cout << "Type 'F' to enter a final exam grade for all students." << endl;
+        if (gradebook.getNumStudents() > 0) {
+            cout << "Type 'P' to enter a program grade for all students." << endl;
+            cout << "Type 'T' to enter a test grade for all students." << endl;          if (gradebook.getNumFinals() > 0) {
+                cout << "Type 'F' to enter a final exam grade for all students." << endl;
+            }
         }
         cout << "Type 'C' to change a grade for one student." << endl;
         cout << "Type 'G' to calculate and store the final grade for all students." << endl;
@@ -228,62 +302,74 @@ int main() {
     char C;
     bool done = false;
     ifstream inData;
-    inData.open("Grades.dat");
-    if (!inData) {
-        state = 0;
-    } else {
-        gradebook.deserialize(inData);
-        state = 1;
-    }
-    while (state != 3) {
-        displayMenu(state, gradebook);
-        cin >> C;
-		C = toupper(C);
-        if (state == 0) {
-            switch (C) {
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            default :
-                cout << "Unrecognized command." << endl;
-                break;
-            }
-        } else if (state == 1) {
-            switch (C) {
-            case 'A':
-                handleAddStudent(gradebook);
-                break;
-            case 'P':
-                handleAddProgramGrade(gradebook);
-                break;
-            case 'T':
-                handleAddTestGrade(gradebook);
-                break;
-            case 'F':
-                handleAddFinalExamGrade(gradebook);
-                break;
-           case 'C':
-                handleChangeGrade(gradebook);
-                break;
-            case 'G':
-                handleCalculateGrades(gradebook);
-                break;
-            case 'O':
-                handleOutputGrades(gradebook);
-                break;
-            case 'S':
-                handleSetup(state, gradebook);
-                break;
-            case 'Q':
-                handleQuit(state, gradebook);
-                break;
-            default :
-                cout << "Unrecognized Command." << endl;
+    try {
+        inData.open("Grades.dat");
+        if (!inData) {
+            state = 0;
+        } else {
+            gradebook.deserialize(inData);
+            state = 1;
+        }
+        while (state != 2) {
+            displayMenu(state, gradebook);
+            cin >> C;
+            if (state == 0) {
+                switch (C) {
+                case 'Q':
+                    handleQuit(state, gradebook);
+                    break;
+                case 'S':
+                    handleSetup(state, gradebook);
+                    break;
+                default :
+                    cout << "Unrecognized command." << endl;
+                    break;
+                }
+            } else if (state == 1) {
+                switch (C) {
+                case 'A':
+                    handleAddStudent(gradebook);
+                    break;
+                case 'G':
+                    handleCalculateGrades(gradebook);
+                    break;
+                case 'O':
+                    handleOutputGrades(gradebook);
+                    break;
+                case 'S':
+                    handleSetup(state, gradebook);
+                    break;
+                case 'Q':
+                    handleQuit(state, gradebook);
+                    break;
+                case 'P':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddProgramGrade(gradebook);
+                        break;
+                    }
+                case 'T':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddTestGrade(gradebook);
+                        break;
+                    }
+                case 'F':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleAddFinalExamGrade(gradebook);
+                        break;
+                    }
+                case 'C':
+                    if (gradebook.getNumStudents() > 0) {
+                        handleChangeGrade(gradebook);
+                        break;
+                    }
+                default :
+                    cout << "Unrecognized Command." << endl;
+                }
             }
         }
+    } catch (string& e) {
+        cout << "Got exception:" << endl << e;
+        exit(1);
     }
     exit(0);
 }
