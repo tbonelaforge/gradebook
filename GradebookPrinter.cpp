@@ -4,14 +4,14 @@
 
 using namespace std;
 
-void GradebookPrinter::printGradebook(Gradebook& gradebook, ostream& out) {
-    GradebookPrinter gp(gradebook);
+void GradebookPrinter::printGradebook(Gradebook& gradebook, ostream& out, bool idMode) {
+    GradebookPrinter gp(gradebook, idMode);
     gp.print(out);
     
     Gradebook::transLogOut << "Print to Grades.out" << endl;
 }
 
-GradebookPrinter::GradebookPrinter(Gradebook& gradebook) : gradebook(gradebook) {
+GradebookPrinter::GradebookPrinter(Gradebook& gradebook, bool idMode) : gradebook(gradebook), idMode(idMode) {
     numRows = gradebook.getNumStudents() + 1; // Extra row for table header
     numColumns = gradebook.getNumPrograms() + gradebook.getNumTests() + gradebook.getNumFinals() + 3;
     cellContents = new string*[numRows];
@@ -50,12 +50,25 @@ void GradebookPrinter::print(ostream& out) {
 
 void GradebookPrinter::fillStudentData() {
     int i = 0;
-    Student * current = gradebook.getHead();
-    while (current != NULL) {
-        string * studentRow = cellContents[1 + i];
-        fillStudentRow(studentRow, current);
-        i += 1;
-        current = current->next;
+    Student * student;
+    string * studentRow;
+    if (idMode) {
+        student = gradebook.getHead();
+        while (student != NULL) {
+            studentRow = cellContents[1 + i];
+            fillStudentRow(studentRow, student);
+            i += 1;
+            student = student->next;
+        }
+    } else {
+        Node * current = gradebook.getIndex();
+        while (current != NULL) {
+            student = current->student;
+            studentRow = cellContents[1 + i];
+            fillStudentRow(studentRow, student);
+            i += 1;
+            current = current->next;
+        }
     }
 }
 

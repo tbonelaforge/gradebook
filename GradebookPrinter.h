@@ -7,9 +7,9 @@
 
 class GradebookPrinter {
  public:
-    static void printGradebook(Gradebook& gradebook, std::ostream& out);
+    static void printGradebook(Gradebook& gradebook, std::ostream& out, bool idMode);
  private:
-    GradebookPrinter(Gradebook& gradebook);
+    GradebookPrinter(Gradebook& gradebook, bool idMode);
     ~GradebookPrinter();
     const Gradebook& gradebook;
     int numRows;
@@ -24,6 +24,7 @@ class GradebookPrinter {
     void printRowSeparator(std::ostream& out);
     void fillHeader(int i, string columnHeading);
     static string centerString(string data, int columnWidth);
+    bool idMode;
 };
 
 #endif
