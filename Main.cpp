@@ -18,17 +18,17 @@ void handleSetup(int &state, Gradebook &gradebook) {
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
 
-    cout << "Enter number of programming assignments (Between 0-6): " << endl;
+    cout << "Enter number of programming assignments (Between 1-6): " << endl;
     cin >> numPrograms;
-    while (numPrograms<0||numPrograms>6){
-      cout << "Error, incorrect value entered." <<endl<<"Enter number of programming assignments (Between 0-6): " << endl;
+    while (numPrograms < 1 || numPrograms > 6){
+      cout << "Error, incorrect value entered." <<endl<<"Enter number of programming assignments (Between 1-6): " << endl;
       cin >> numPrograms;
     }
 
-    cout << "Enter number of tests (Between 0-4): " << endl;
+    cout << "Enter number of tests (Between 1-4): " << endl;
     cin >> numTests;
-    while (numTests<0||numTests>4){
-      cout << "Error, incorrect value entered." <<endl<<"Enter number of tests (Between 0-4): " << endl;
+    while (numTests < 1 || numTests > 4){
+      cout << "Error, incorrect value entered." <<endl<<"Enter number of tests (Between 1-4): " << endl;
       cin >> numTests;
     }
 
@@ -71,8 +71,10 @@ void handleSetup(int &state, Gradebook &gradebook) {
 
 
 void handleQuit(int &state, Gradebook &gradebook) {
-    cout << "Saving grades and exiting..." << endl;
-    saveGrades(gradebook);
+    if (state == 1) {
+        cout << "Saving grades and exiting..." << endl;
+        saveGrades(gradebook);
+    }
     state = 2;
 }
 
@@ -107,7 +109,7 @@ void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
         Node * current = gradebook.getIndex();
         while (current != NULL) {
             student = current->student;
-            cout << "Enter Program Grade for "
+            cout << "Enter Program " << programNumber << " Grade for "
                  << student->getLastName() << ", " << student->getFirstName() << endl;
             cin >> programGrade;
             student->setProgramGrade(programNumber - 1, programGrade);
@@ -117,7 +119,7 @@ void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
     } else {
         student = gradebook.getHead();
         while (student != NULL) {
-            cout << "Enter Program Grade for "
+            cout << "Enter Program " << pgramNumber << " Grade for "
                  << student->getLastName() << ", " << student->getFirstName() << endl;
             cin >> programGrade;
             student->setProgramGrade(programNumber - 1, programGrade);
