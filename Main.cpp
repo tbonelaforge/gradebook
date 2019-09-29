@@ -8,10 +8,14 @@
 
 using namespace std;
 
+ofstream transLog("Grades.trn", ios::out | ios::app);
+
 void saveGrades(Gradebook &gradebook) {
     ofstream saveFile;
     saveFile.open("Grades.dat");
     gradebook.serialize(saveFile);
+    
+    transLog << "Saved to Grades.dat" << endl;
 }
 
 void handleSetup(int &state, Gradebook &gradebook) {
@@ -66,19 +70,39 @@ void handleSetup(int &state, Gradebook &gradebook) {
                          );
     saveGrades(gradebook);
     state = 1;
+    
+    transLog.close();
+    transLog.open("Grades.trn");
+    transLog << "Initialized Gradebook:" 
+        << " Programs: " << numPrograms
+        << " Tests: " << numTests
+        << " Finals: " << numFinals << "  | "
+        << " Pwt: " << programsWeight
+        << " Twt: " << testsWeight
+        << " Fwt: " << finalExamWeight << endl;
 }
 
 
 
 void handleQuit(int &state, Gradebook &gradebook) {
+    //program hangs if no semester (student) data and no prior Grades.dat
+    if (state == 0) {
+        transLog << "Quit" << endl;
+        return;
+    }
+    
     cout << "Saving grades and exiting..." << endl;
     saveGrades(gradebook);
     state = 2;
+    
+    transLog << "Quit" << endl;
 }
 
 void handleModeToggle(bool &idMode) {
     idMode = !idMode;
     cout << "Toggled output mode to: " << ( idMode ? "by Id" : "by Name" ) << endl;
+    
+    transLog << "Toggled output mode to: " << ( idMode ? "by Id" : "by Name" ) << endl;
 }
 
 void handleOutputGrades(Gradebook &gradebook, bool idMode) {
@@ -88,13 +112,15 @@ void handleOutputGrades(Gradebook &gradebook, bool idMode) {
     cout << "\nOutputing the complete gradebook to Grades.out..." << endl;
     GradebookPrinter::printGradebook(gradebook, outfile, idMode);
     cout << endl;
+    
+    transLog << "Output grades to Grades.out" << endl;
 }
 
 void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
     int programNumber, programGrade;
     cout << "Enter programming assignment number: (1 - " << gradebook.getNumPrograms() << ")" << endl;
     cin >> programNumber;
-    if (programNumber < 0 || programNumber > gradebook.getNumPrograms()) {
+    if (programNumber < 1 || programNumber > gradebook.getNumPrograms()) {
         cout << "Invalid Program Number." << endl;
         return;
     }
@@ -128,13 +154,15 @@ void handleAddProgramGrade(Gradebook &gradebook, bool idMode) {
     gradebook.setProgramRecorded(programNumber);
     saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
+    
+    transLog << "Recorded grades for Program: " << programNumber << endl;
 }
 
 void handleAddTestGrade(Gradebook &gradebook, bool idMode) {
     int testNumber, testGrade;
     cout << "Enter test number: (1 - " << gradebook.getNumTests() << ")" << endl;
     cin >> testNumber;
-    if (testNumber < 0 || testNumber > gradebook.getNumTests()) {
+    if (testNumber < 1 || testNumber > gradebook.getNumTests()) {
         cout << "Invalid Test Number." << endl;
         return;
     }
@@ -168,6 +196,8 @@ void handleAddTestGrade(Gradebook &gradebook, bool idMode) {
     gradebook.setTestRecorded(testNumber);
     saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
+    
+    transLog << "Recorded grades for Test: " << testNumber << endl;
 }
 
 void handleAddFinalExamGrade(Gradebook &gradebook, bool idMode) {
@@ -202,6 +232,8 @@ void handleAddFinalExamGrade(Gradebook &gradebook, bool idMode) {
     gradebook.setFinalExamRecorded();
     saveGrades(gradebook);
     handleOutputGrades(gradebook, idMode);
+    
+    transLog << "Recorded grades for Final" << endl;
 }
 
 void handleChangeGrade(Gradebook &gradebook) {
@@ -221,11 +253,12 @@ void handleChangeGrade(Gradebook &gradebook) {
         cout << "Enter the type of grade: ('P' for program, 'T' for test)" << endl;
     }
     cin >> gradeType;
+    gradeType = toupper(gradeType);
     switch (gradeType) {
     case 'P':
         cout << "Enter the program number (1 - " << gradebook.getNumPrograms() << ")\n";
         cin >> gradeNumber;
-        if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
+        if (gradeNumber < 1 || gradeNumber > gradebook.getNumPrograms()) {
             cout << "Invalid program number.\n";
             return;
         }
@@ -233,7 +266,7 @@ void handleChangeGrade(Gradebook &gradebook) {
     case 'T':
         cout << "Enter the test number (1 - " << gradebook.getNumTests() << ")\n";
         cin >> gradeNumber;
-        if (gradeNumber < 0 || gradeNumber >= gradebook.getNumPrograms()) {
+        if (gradeNumber < 1 || gradeNumber > gradebook.getNumTests()) {
             cout << "Invalid test number.\n";
             return;
         }
@@ -252,14 +285,22 @@ void handleChangeGrade(Gradebook &gradebook) {
 		cout << "Error, please enter a value between 0-100: " << endl;
 		cin >> newGrade;
 	}
+
+    transLog << "Changed student " << student->getId();
+
     if (gradeType == 'P') {
         cout << "Changing the grade for program " << gradeNumber << " to " << newGrade << endl;
         student->setProgramGrade(gradeNumber - 1, newGrade);
+        
+        transLog << " program " << gradeNumber << " to " << newGrade << endl;
     } else if (gradeType == 'T') {
         cout << "Changing the grade for test " << gradeNumber << " to " << newGrade << endl;
         student->setTestGrade(gradeNumber - 1, newGrade);
+        
+        transLog << " test " << gradeNumber << " to " << newGrade << endl;
     } else {
         cout << "Changing the final exam grade to " << newGrade << endl;
+        transLog << " Final grade from " << student->getFinalExamGrade() << " to " << newGrade << endl;
         student->setFinalExamGrade(newGrade);
     }
 }
@@ -277,6 +318,8 @@ void handleCalculateGrades(Gradebook &gradebook, bool idMode) {
         saveGrades(gradebook);
         student = student->next;
     }
+    transLog << "Final grades calculated" << endl;
+    
     handleOutputGrades(gradebook, idMode);
 }
 
@@ -316,7 +359,7 @@ void handleAddStudent(Gradebook &gradebook) {
     } catch (const string& reason) {
         cout << "Unable to add new student: " << endl << reason << endl;
     }
-
+    transLog << "Added " << firstName << " " << lastName << " id " << studentId << endl;
 }
 
 void displayMenu(int state, Gradebook& gradebook, bool idMode) {
@@ -344,14 +387,14 @@ void displayMenu(int state, Gradebook& gradebook, bool idMode) {
     }
 }
 
-
 int main() {
     int state; // 0 = unitialized, 1 = initialized, 2 = done
     bool idMode = true; // Whether to print students by id or by name.
     Gradebook gradebook;
-    char C;
+    char C = '?';
     bool done = false;
     ifstream inData;
+
     try {
         inData.open("Grades.dat");
         if (!inData) {
@@ -360,9 +403,10 @@ int main() {
             gradebook.deserialize(inData);
             state = 1;
         }
-        while (state != 2) {
+        while (C != 'Q' && state != 2) {
             displayMenu(state, gradebook, idMode);
             cin >> C;
+            C = toupper(C);
             if (state == 0) {
                 switch (C) {
                 case 'Q':
