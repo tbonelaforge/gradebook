@@ -7,8 +7,6 @@
 
 using namespace std;
 
-ofstream Gradebook::transLogOut("Grades.trn");
-
 Gradebook::Gradebook() : head(NULL), index(NULL) {
     makeEmpty();
 }
@@ -17,9 +15,6 @@ Gradebook::~Gradebook() {
     delete [] programRecorded;
     delete [] testRecorded;
     deleteStudents();
-    
-    transLogOut << "Quit Gradebook." << endl;
-    transLogOut.close();
 }
 
 void Gradebook::initialize(int p, int t, int f, int pw, int tw, int fw) {
@@ -41,15 +36,6 @@ void Gradebook::initialize(int p, int t, int f, int pw, int tw, int fw) {
     if (numFinals > 0) {
         finalExamWeight = fw;
     }
-    
-    transLogOut 
-        << "Initialized Gradebook:\t" 
-        << "Programs: " << p 
-        << " Tests: " << t 
-        << " Finals: " << f << "  | "
-        << " Pwt: " << pw
-        << " Twt: " << tw
-        << " Fwt: " << fw << endl;
 }
 
 int Gradebook::getNumPrograms() const {
@@ -116,9 +102,6 @@ Student * Gradebook::addStudent(int newId, string firstName, string lastName) {
     newStudent->next = current;
     addToIndex(newStudent);
     numStudents += 1;
-    
-    transLogOut << "Added new student: " << newId << endl;
-    
     return newStudent;
 }
 
@@ -199,14 +182,9 @@ void Gradebook::serialize(ostream& out) {
     }
     out << endl;
     out << finalExamRecorded << endl;
-
-    transLogOut << "Saved data to Grades.dat" << endl;
 }
 
 void Gradebook::deserialize(istream& in) {
-    
-    transLogOut << "Loaded data from Grades.dat" << endl;
-    
     int numPrograms, numTests, numFinals;
     int programsWeight, testsWeight, finalExamWeight;
     int numStudents;

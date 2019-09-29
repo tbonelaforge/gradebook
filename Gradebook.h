@@ -38,7 +38,6 @@ public:
     bool getTestRecorded(int i);
     void setFinalExamRecorded();
     bool getFinalExamRecorded();
-    static ofstream transLogOut;
   
 private:
     int numPrograms;
