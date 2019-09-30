@@ -116,6 +116,7 @@ void Student::calculateFinalAverage(int programsWeight, int testsWeight, int fin
     float programAverage, testAverage;
 	float d = 100;
     float programTotal = 0.0, testTotal = 0.0;
+    
     for (int i = 0; i < numPrograms; i++) {
         if (programGrades[i] > -1) programTotal += (float) programGrades[i];
     }
@@ -124,11 +125,14 @@ void Student::calculateFinalAverage(int programsWeight, int testsWeight, int fin
         if (testGrades[i] > -1) testTotal += (float) testGrades[i];
     }
     testAverage = testTotal / (float) numTests;
-    float finalTotal =
-        programAverage / d * programsWeight +
-        testAverage / d * testsWeight;
+    
+    //adjusted to prevent "nan" final grade
+    float finalTotal;
+    if (programsWeight > 0 && numPrograms > 0) finalTotal += programAverage / d * programsWeight;
+    if (testsWeight > 0 && numTests > 0) finalTotal += testAverage / d * testsWeight;
     if (numFinals > 0) {
         if (finalExamGrade > -1) finalTotal += finalExamGrade / d * finalExamWeight;
     }
+    if (!(finalTotal > -0.1)) finalTotal = 0.0;
     setFinalAverage(finalTotal);
 }
