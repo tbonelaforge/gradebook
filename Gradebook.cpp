@@ -13,7 +13,7 @@ Gradebook::Gradebook() : head(NULL), index(NULL) {
     makeEmpty();
 }
 
-Gradebook::~Gradebook() {
+Gradebook::~Gradebook() { // Destructor
     delete [] programRecorded;
     delete [] testRecorded;
     deleteStudents();
